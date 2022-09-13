@@ -1,8 +1,10 @@
 name: Release
+
 on:
-  workflow-dispatch:
+  workflow_dispatch:
   release:
     types: [published]
+
 jobs:
   release:
     name: Release on ${{ matrix.target }}
