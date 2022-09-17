@@ -1,19 +1,27 @@
-mod commands;
+use clap::{Command, Parser, Subcommand};
 
-use clap::Command;
+#[derive(Parser)]
+#[clap(author, version, about, long_about = None)]
+#[clap(propagate_version = true)]
+struct Cli {
+    #[clap(subcommand)]
+    command: Commands
+}
 
-fn main() -> std::io::Result<()> {
-    let command = Command::new("katan")
-        .subcommand_required(true)
-        .arg_required_else_help(true)
-        .subcommand(Command::new("version"))
-        .subcommand(Command::new("install"));
+#[derive(Subcommand)]
+enum Commands {
+    Install {
+        #[clap(value_parser)]
+        product: Option<String>
+    }
+}
 
-    let matches = command.get_matches();
-
-    match matches.subcommand() {
-        Some(("version", _)) => commands::version::run(),
-        Some(("install", _)) => commands::install::run(),
-        _ => unreachable!(),
+fn main() {
+    let cli = Cli::parse();
+   
+    match &cli.command {
+        Commands::Install { product } => {
+            println!("ainda n me chame de bb {:?}", product);
+        }
     }
 }
