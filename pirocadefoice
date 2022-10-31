@@ -1,0 +1,34 @@
+#!/bin/bash
+
+check_docker_installation() {
+    if ! docker info > /dev/null 2>&1; then
+        echo "This script uses docker, and it isn't running - please start docker and try again!"
+        exit 1
+    fi
+}
+
+check_os_arch() {
+  CPU_ARCHITECTURE=$(uname -m)
+  if [ "${CPU_ARCHITECTURE}" != "x86_64" ]; then # check the architecture
+    print_warning "Detected CPU architecture $CPU_ARCHITECTURE"
+    print_warning "Using any other architecture than 64 bit (x86_64) will cause problems."
+
+    echo -e -n "* Are you sure you want to proceed? (y/N):"
+    read -r choice
+
+    if [[ ! "$choice" =~ [Yy] ]]; then
+      print_error "Installation aborted!"
+      exit 1
+    fi
+  fi
+}
+
+
+perform_install() {
+    check_os_arch
+    check_docker_installation
+    echo "Installing Katan UI..."
+    return 0
+}
+
+perform_install
