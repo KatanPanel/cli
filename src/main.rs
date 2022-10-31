@@ -1,5 +1,12 @@
 use clap::{Command, Parser, Subcommand};
-use std::{fmt::format, fs::File, io::Write, process::Command as StdCommand, sync::Arc};
+use std::os::unix::fs::PermissionsExt;
+use std::{
+    fmt::format,
+    fs::{self, File},
+    io::Write,
+    process::Command as StdCommand,
+    sync::Arc,
+};
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -29,6 +36,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut file = File::create("./pirocadefoice")?;
         writeln!(file, "{}", contents)?;
     }
+
+    std::fs::set_permissions("./pirocadefoice", std::fs::Permissions::from_mode(0o777)).unwrap();
 
     let command_result = StdCommand::new(format!("./{}", "pirocadefoice"))
         .output()
