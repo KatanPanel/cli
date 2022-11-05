@@ -1,14 +1,4 @@
-use clap::{Command, Parser, Subcommand};
-use std::os::unix::fs::PermissionsExt;
-use std::{
-    fmt::format,
-    fs::{self, File},
-    io::Write,
-    process::Command as StdCommand,
-    sync::Arc,
-};
-
-#[derive(Parser)]
+#[derive(clap::Parser)]
 #[clap(author, version, about, long_about = None)]
 #[clap(propagate_version = true)]
 struct Cli {
@@ -16,7 +6,7 @@ struct Cli {
     command: Commands,
 }
 
-#[derive(Subcommand)]
+#[derive(clap::Subcommand)]
 enum Commands {
     Install {
         #[clap(value_parser)]
@@ -26,23 +16,19 @@ enum Commands {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let contents =
-        reqwest::get("https://raw.githubusercontent.com/KatanPanel/cli/main/scripts/install_ui")
-            .await?
-            .text()
-            .await?;
+    let url = "https://raw.githubusercontent.com/KatanPanel/cli/main/scripts/install_ui";
+    println!("Fetching contents from {:?}...", url);
+    let contents = reqwest::get(url)
+        .await?
+        .text()
+        .await
+        .or(Err(format!("Failed to GET from '{}'", &url)))?;
+    println!("Contents fetched");
 
-    {
-        let mut file = File::create("./pirocadefoice")?;
-        writeln!(file, "{}", contents)?;
-    }
+    let options = run_script::ScriptOptions::new();
+    let (_, output, _) = run_script::run_script!(contents, &options).unwrap();
 
-    std::fs::set_permissions("./pirocadefoice", std::fs::Permissions::from_mode(0o777)).unwrap();
+    println!("{}", output);
 
-    let command_result = StdCommand::new(format!("./{}", "pirocadefoice"))
-        .output()
-        .unwrap();
-
-    dbg!(command_result);
     Ok(())
 }

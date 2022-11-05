@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 check_docker_installation() {
     if ! docker info > /dev/null 2>&1; then
