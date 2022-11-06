@@ -1,4 +1,4 @@
-struct AuthError {
+struct KHttpResponse {
     pub code: int32,
     pub message: String,
 }
@@ -8,9 +8,8 @@ pub struct AuthRequest<'a> {
 }
 
 impl<'a> AuthenticatedRequest<'a> {
-
-    pub fn new(api_token: &'a str, ) -> Self {
+    pub fn new(api_token: &'a str) -> Self {
         Self { api_token }
     }
-
 }
+

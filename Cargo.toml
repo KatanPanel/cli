@@ -7,9 +7,10 @@ readme = "README.md"
 license-file = "LICENSE"
 
 [dependencies]
-clap = { version = "4.0.15", features = ["derive"] }
+clap = { version = "4.0.19", features = ["derive"] }
 reqwest = { version = "0.11", features = ["json"] }
 tokio = { version = "1.21.2", features = ["full"] }
 filename = "0.1"
 uuid = { version = "1.2.1", features = ["serde", "v4"] }
 run_script = "*"
+indicatif = "0.17.1"

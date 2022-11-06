@@ -1,8 +1,21 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
+
+want_to_proceed() {
+    printf "Are you sure you want to proceed? (y/N): "
+    old_stty_cfg=$(stty -g)
+    stty raw -echo; answer=$(head -c 1); stty $old_stty_cfg
+    if echo "$answer" | grep -iq "^y"; then
+        echo "Yes"
+        return 0
+    else
+        echo "No"
+        return 1
+    fi
+}
 
 check_docker_installation() {
     if ! docker info > /dev/null 2>&1; then
-        echo "This script uses docker, and it isn't running - please start docker and try again!"
+        printf "Katan Web-UI installation needs Docker and it isn't running in this machine. Please start Docker and try again!" >&2;
         exit 1
     fi
 }
@@ -10,24 +23,24 @@ check_docker_installation() {
 check_os_arch() {
   CPU_ARCHITECTURE=$(uname -m)
   if [ "${CPU_ARCHITECTURE}" != "x86_64" ]; then # check the architecture
-    print_warning "Detected CPU architecture $CPU_ARCHITECTURE"
-    print_warning "Using any other architecture than 64 bit (x86_64) will cause problems."
+    printf "Detected CPU architecture $CPU_ARCHITECTURE"
+    printf "Using any other architecture than 64 bit (x86_64) will cause problems."
 
-    echo -e -n "* Are you sure you want to proceed? (y/N):"
-    read -r choice
-
-    if [[ ! "$choice" =~ [Yy] ]]; then
-      print_error "Installation aborted!"
-      exit 1
+    if ! want_to_proceed; then
+        printf "Installation aborted!" >&2;
+        exit 0
     fi
   fi
 }
 
-
 perform_install() {
     check_os_arch
     check_docker_installation
-    echo "Installing Katan UI..."
+
+    if want_to_proceed; then
+        docker pull ghcr.io/katanpanel/katan-web-ui:dev
+    fi
+
     return 0
 }
 
