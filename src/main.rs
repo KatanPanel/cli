@@ -23,8 +23,9 @@ enum Commands {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
+    let client = reqwest::Client::new();
 
     match &cli.command {
-        Commands::Install { package } => commands::install::install(package.clone())
+        Commands::Install { package } => commands::install::install(&client, package.clone())
     }.await
 }

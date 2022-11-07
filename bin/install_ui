@@ -22,7 +22,7 @@ check_docker_installation() {
 
 check_os_arch() {
   CPU_ARCHITECTURE=$(uname -m)
-  if [ "${CPU_ARCHITECTURE}" != "x86_64" ]; then # check the architecture
+  if [ "${CPU_ARCHITECTURE}" != "x86_64" ]; then
     printf "Detected CPU architecture $CPU_ARCHITECTURE"
     printf "Using any other architecture than 64 bit (x86_64) will cause problems."
 
@@ -37,10 +37,21 @@ perform_install() {
     check_os_arch
     check_docker_installation
 
-    if want_to_proceed; then
-        docker pull ghcr.io/katanpanel/katan-web-ui:dev
+    if ! want_to_proceed; then
+        printf "Installation aborted!" >&2;
+        exit 0
     fi
 
+    if [ "$(docker ps -aq -f name=katan-web-ui)"  ]; then
+        echo "Removing old katan-web-ui container..."
+        docker rm -f katan-web-ui
+    fi
+
+    echo "Installing..."
+    printf "Running on: "
+    docker run -d -it --rm -p 80:80 --name katan-web-ui -l org.katan.cli.pkg=web-ui ghcr.io/katanpanel/katan-web-ui:dev
+
+    echo "Done."
     return 0
 }
 

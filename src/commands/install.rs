@@ -6,12 +6,11 @@ const PACKAGES: &[&str] = &["web-ui"];
 
 type BoxError = std::boxed::Box<dyn std::error::Error + std::marker::Send + std::marker::Sync>;
 
-pub async fn install(package: String) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn install(client: &reqwest::Client, package: String) -> Result<(), Box<dyn std::error::Error>> {
     if !PACKAGES.contains(&package.as_str()) {
         return Ok(println!("Invalid package: {}", package));
     }
 
-    let client = reqwest::Client::new();
     println!("Downloading package...");
 
     // download_file(client, URL, package.as_str()).await.unwrap();
