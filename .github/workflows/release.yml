@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [windows-latest, macos-latest, ubuntu-latest]
+        target: [macos-latest, ubuntu-latest]
     steps:
       - uses: actions/checkout@master
       - name: Setup Rust
@@ -26,12 +26,6 @@ jobs:
         run: cargo build -r
         env:
           OPENSSL_STATIC: 1
-      - name: Generate artifacts for Windows
-        uses: vimtor/action-zip@v1
-        with:
-          files: target/release/katan-cli.exe README.md LICENSE
-          dest: katan-cli.zip
-        if: runner.os == 'Windows'
       - name: Generate artifacts for Linux & Mac
         uses: vimtor/action-zip@v1
         with:

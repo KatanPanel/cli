@@ -26,6 +26,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = reqwest::Client::new();
 
     match &cli.command {
-        Commands::Install { package } => commands::install::install(&client, package.clone())
-    }.await
+        Commands::Install { package } => commands::install::install(&client, package.clone()),
+    }
+    .await
 }

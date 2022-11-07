@@ -1,4 +1,3 @@
-use std::io::Write;
 use tokio::io::AsyncWriteExt;
 
 const URL: &str = "https://raw.githubusercontent.com/KatanPanel/cli/main/bin/install_ui";
@@ -6,20 +5,19 @@ const PACKAGES: &[&str] = &["web-ui"];
 
 type BoxError = std::boxed::Box<dyn std::error::Error + std::marker::Send + std::marker::Sync>;
 
-pub async fn install(client: &reqwest::Client, package: String) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn install(
+    client: &reqwest::Client,
+    package: String,
+) -> Result<(), Box<dyn std::error::Error>> {
     if !PACKAGES.contains(&package.as_str()) {
         return Ok(println!("Invalid package: {}", package));
     }
 
     println!("Downloading package...");
-
-    // download_file(client, URL, package.as_str()).await.unwrap();
+    download_file(client, URL, package.as_str()).await.unwrap();
 
     println!("Reading package...");
     let contents = std::fs::read_to_string(package).expect("Failed to read package contents");
-
-    println!("Installing package...");
-
     let options = run_script::ScriptOptions {
         runner: None,
         working_directory: None,
@@ -31,13 +29,15 @@ pub async fn install(client: &reqwest::Client, package: String) -> Result<(), Bo
     };
 
     let args = vec![];
+
+    println!("Installing package...");
     run_script::spawn(contents.as_str(), &args, &options)
         .unwrap()
         .wait_with_output()?;
     Ok(())
 }
 
-pub async fn download_file(client: reqwest::Client, url: &str, path: &str) -> Result<(), BoxError> {
+pub async fn download_file(client: &reqwest::Client, url: &str, path: &str) -> Result<(), BoxError> {
     let uri = reqwest::Url::parse(url)?;
     let content_length = {
         let res = client.head(uri.as_str()).send().await?;
