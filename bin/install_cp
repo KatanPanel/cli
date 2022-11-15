@@ -21,7 +21,6 @@ want_to_proceed() {
 }
 
 perform_install() {
-    check_os_arch
     check_docker_installation
 
     if ! want_to_proceed; then
