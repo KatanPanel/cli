@@ -3,8 +3,6 @@ use tokio::io::AsyncWriteExt;
 const BASE_URL: &str = "https://raw.githubusercontent.com/KatanPanel/cli/main/bin/install_";
 const PACKAGES: &[&str] = &["web-ui", "cp"];
 
-type BoxError = std::boxed::Box<dyn std::error::Error + std::marker::Send + std::marker::Sync>;
-
 pub async fn install(
     client: &reqwest::Client,
     package: String,
@@ -33,7 +31,7 @@ pub async fn install(
     Ok(())
 }
 
-pub async fn download_file(client: &reqwest::Client, url: &str, path: &str) -> Result<(), BoxError> {
+pub async fn download_file(client: &reqwest::Client, url: &str, path: &str) -> Result<(), Box<dyn std::error::Error>> {
     let uri = reqwest::Url::parse(url)?;
     let content_length = {
         let res = client.head(uri.as_str()).send().await?;

@@ -433,6 +433,7 @@ dependencies = [
  "indicatif",
  "reqwest",
  "run_script",
+ "tempfile",
  "tokio",
  "uuid",
 ]
