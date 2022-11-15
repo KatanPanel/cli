@@ -49,7 +49,7 @@ perform_install() {
 
     echo "Installing..."
     printf "Running on: "
-    docker run -d -it --rm -p 80:80 --name katan-web-ui -l org.katan.cli.pkg=web-ui ghcr.io/katanpanel/katan-web-ui:dev
+    docker run -d -it --rm -p 80:80 --name katan-web-ui -l org.katan.cli.pkg=web-ui ghcr.io/katanpanel/web-ui:main
 
     echo "Done."
     return 0
