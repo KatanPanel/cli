@@ -1,5 +1,3 @@
-use tokio::io::AsyncWriteExt;
-
 const BASE_URL: &str = "https://raw.githubusercontent.com/KatanPanel/cli/main/bin/install_";
 const PACKAGES: &[&str] = &["web-ui", "cp"];
 
@@ -14,9 +12,8 @@ pub async fn install(
     let url = format!("{BASE_URL}{package}").replace("-", "-");
     println!("Fetching from {}...", url);
 
-    download_file(client, &url, package.as_str()).await.unwrap();
+    let contents = download_file(client, &url).await.expect("Failed to download file contents");
 
-    let contents = std::fs::read_to_string(package).expect("Failed to read package contents");
     let options = run_script::ScriptOptions {
         runner: None,
         working_directory: None,
@@ -36,8 +33,7 @@ pub async fn install(
 pub async fn download_file(
     client: &reqwest::Client,
     url: &str,
-    path: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<String, Box<dyn std::error::Error>> {
     let uri = reqwest::Url::parse(url)?;
     let content_length = {
         let res = client.head(uri.as_str()).send().await?;
@@ -62,19 +58,14 @@ pub async fn download_file(
             .progress_chars("#>-"),
     );
 
-    let temp_file = tempfile::NamedTempFile::new()?;
-    let file_path = temp_file.path();
-    println!("Writing contents to {}...", file_path.to_str().unwrap());
-
-    let mut outfile = tokio::fs::File::create(file_path).await?;
+    let mut contents = "".to_owned();
     let mut download = req.send().await?;
 
     while let Some(frame) = download.chunk().await? {
         progress_bar.inc(frame.len() as u64);
-        outfile.write(&frame).await?;
+        contents.push_str(std::str::from_utf8(&frame.to_vec())?);
     }
 
     progress_bar.finish();
-    outfile.flush().await?;
-    return Ok(());
+    return Ok(contents);
 }
