@@ -1,0 +1,37 @@
+#!/usr/bin/bash
+
+check_docker_installation() {
+    if ! docker info > /dev/null 2>&1; then
+        printf "Katan control plane installation needs Docker and it isn't running in this machine. Please start Docker and try again!" >&2;
+        exit 1
+    fi
+}
+
+want_to_proceed() {
+    printf "Are you sure you want to proceed? (y/N): "
+    old_stty_cfg=$(stty -g)
+    stty raw -echo; answer=$(head -c 1); stty $old_stty_cfg
+    if echo "$answer" | grep -iq "^y"; then
+        echo "Yes"
+        return 0
+    else
+        echo "No"
+        return 1
+    fi
+}
+
+perform_install() {
+    check_os_arch
+    check_docker_installation
+
+    if ! want_to_proceed; then
+        printf "Installation aborted!" >&2;
+        exit 0
+    fi
+
+    docker run -d -it --rm -p 80:80 --name katan-cp -l org.katan.cli.pkg=katan-cp docker pull ghcr.io/katanpanel/katan:main
+
+    return 0
+}
+
+perform_install

@@ -1,7 +1,7 @@
 use tokio::io::AsyncWriteExt;
 
-const URL: &str = "https://raw.githubusercontent.com/KatanPanel/cli/main/bin/install_ui";
-const PACKAGES: &[&str] = &["web-ui"];
+const BASE_URL: &str = "https://raw.githubusercontent.com/KatanPanel/cli/main/bin/install_";
+const PACKAGES: &[&str] = &["web-ui", "cp"];
 
 type BoxError = std::boxed::Box<dyn std::error::Error + std::marker::Send + std::marker::Sync>;
 
@@ -13,10 +13,11 @@ pub async fn install(
         return Ok(println!("Invalid package: {}", package));
     }
 
-    println!("Downloading package...");
-    download_file(client, URL, package.as_str()).await.unwrap();
+    let url = format!("{BASE_URL}{package}").replace("-", "-");
+    println!("Fetching from {}...", url);
 
-    println!("Reading package...");
+    download_file(client, &url, package.as_str()).await.unwrap();
+
     let contents = std::fs::read_to_string(package).expect("Failed to read package contents");
     let options = run_script::ScriptOptions {
         runner: None,
@@ -28,12 +29,7 @@ pub async fn install(
         env_vars: None,
     };
 
-    let args = vec![];
-
-    println!("Installing package...");
-    run_script::spawn(contents.as_str(), &args, &options)
-        .unwrap()
-        .wait_with_output()?;
+    run_script::spawn(contents.as_str(), &vec![], &options).unwrap().wait_with_output()?;
     Ok(())
 }
 
@@ -61,7 +57,6 @@ pub async fn download_file(client: &reqwest::Client, url: &str, path: &str) -> R
             .template("[{bar:40.cyan/blue}] {bytes}/{total_bytes} - {msg}")?
             .progress_chars("#>-"),
     );
-    progress_bar.set_message("Downloading...");
 
     let mut outfile = tokio::fs::File::create(path).await?;
     let mut download = req.send().await?;
