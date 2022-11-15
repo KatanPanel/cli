@@ -27,11 +27,17 @@ pub async fn install(
         env_vars: None,
     };
 
-    run_script::spawn(contents.as_str(), &vec![], &options).unwrap().wait_with_output()?;
+    run_script::spawn(contents.as_str(), &vec![], &options)
+        .unwrap()
+        .wait_with_output()?;
     Ok(())
 }
 
-pub async fn download_file(client: &reqwest::Client, url: &str, path: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn download_file(
+    client: &reqwest::Client,
+    url: &str,
+    path: &str,
+) -> Result<(), Box<dyn std::error::Error>> {
     let uri = reqwest::Url::parse(url)?;
     let content_length = {
         let res = client.head(uri.as_str()).send().await?;
@@ -56,7 +62,11 @@ pub async fn download_file(client: &reqwest::Client, url: &str, path: &str) -> R
             .progress_chars("#>-"),
     );
 
-    let mut outfile = tokio::fs::File::create(path).await?;
+    let temp_file = tempfile::NamedTempFile::new()?;
+    let file_path = temp_file.path();
+    println!("Writing contents to {}...", file_path.to_str().unwrap());
+
+    let mut outfile = tokio::fs::File::create(file_path).await?;
     let mut download = req.send().await?;
 
     while let Some(frame) = download.chunk().await? {
