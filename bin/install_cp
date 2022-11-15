@@ -28,7 +28,7 @@ perform_install() {
         exit 0
     fi
 
-    docker run -d -it --rm -p 80:80 --name katan-cp -l org.katan.cli.pkg=katan-cp docker pull ghcr.io/katanpanel/katan:main
+    docker run -d -it -p 80:80 --name katan-cp -l org.katan.cli.pkg=katan-cp docker pull ghcr.io/katanpanel/katan:main
 
     return 0
 }

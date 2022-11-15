@@ -12,7 +12,9 @@ pub async fn install(
     let url = format!("{BASE_URL}{package}").replace("-", "-");
     println!("Fetching from {}...", url);
 
-    let contents = download_file(client, &url).await.expect("Failed to download file contents");
+    let contents = download_file(client, &url)
+        .await
+        .expect("Failed to download file contents");
 
     let options = run_script::ScriptOptions {
         runner: None,
@@ -26,7 +28,8 @@ pub async fn install(
 
     run_script::spawn(contents.as_str(), &vec![], &options)
         .unwrap()
-        .wait_with_output()?;
+        .wait_with_output()
+        .expect("Failed to execute script");
     Ok(())
 }
 
@@ -50,22 +53,8 @@ pub async fn download_file(
         value
     };
 
+    println!("Content length: {}", content_length);
     let req = client.get(url);
-    let progress_bar = indicatif::ProgressBar::new(content_length);
-    progress_bar.set_style(
-        indicatif::ProgressStyle::default_bar()
-            .template("[{bar:40.cyan/blue}] {bytes}/{total_bytes} - {msg}")?
-            .progress_chars("#>-"),
-    );
 
-    let mut contents = "".to_owned();
-    let mut download = req.send().await?;
-
-    while let Some(frame) = download.chunk().await? {
-        progress_bar.inc(frame.len() as u64);
-        contents.push_str(std::str::from_utf8(&frame.to_vec())?);
-    }
-
-    progress_bar.finish();
-    return Ok(contents);
+    return Ok(req.send().await?.text().await?);
 }
