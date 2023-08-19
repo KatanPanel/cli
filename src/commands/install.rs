@@ -9,7 +9,7 @@ pub async fn install(
         return Ok(println!("Invalid package: {}", package));
     }
 
-    let url = format!("{BASE_URL}{package}").replace("-", "-");
+    let url = format!("{BASE_URL}{package}").replace("-", "_");
     println!("Fetching from {}...", url);
 
     let contents = download_file(client, &url)
