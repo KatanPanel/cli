@@ -17,3 +17,12 @@ uuid = { version = "1.2.1", features = ["serde", "v4"] }
 run_script = "*"
 indicatif = "0.17.1"
 tempfile = "3.3.0"
+
+[package]
+include = [
+    "**/*.rs",
+    "bin/**",
+    "LICENSE",
+    "README.md",
+    "Cargo.toml",
+]
