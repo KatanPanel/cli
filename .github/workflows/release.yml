@@ -39,4 +39,4 @@ jobs:
         with:
           file: ./katan-cli.zip
           mime: application/zip
-          name: katan-cli-x86_64-${{ runner.os }}.zip
+          name: katan-cli-x86_64-${{ runner.os.lowercase }}.zip
