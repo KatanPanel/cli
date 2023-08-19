@@ -1,7 +1,9 @@
 [package]
 name = "katan-cli"
+description = "Katan standard tooling"
 version = "0.1.0-SNAPSHOT"
 edition = "2021"
+homepage = "https://katan.org/"
 repository = "https://github.com/KatanPanel/cli/"
 readme = "README.md"
 license-file = "LICENSE"
