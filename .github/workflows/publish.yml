@@ -2,11 +2,15 @@ name: Publish to Cargo Registry
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - '*'
   release:
     types: [published]
 
 jobs:
   publish:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
